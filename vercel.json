@@ -5,7 +5,7 @@
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
-      "includeFiles": "node_modules/.prisma/**,backend/node_modules/.prisma/**,node_modules/@prisma/client/**"
+      "includeFiles": "backend/**"
     }
   },
   "rewrites": [
