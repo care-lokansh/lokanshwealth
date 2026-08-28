@@ -27,7 +27,14 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await signIn.email({ email, password });
-      if (res.error) { setError(res.error.message || "Invalid credentials"); setLoading(false); return; }
+      if (res.error) {
+        const msg = res.error.message || "Invalid credentials";
+        const looksLikeMissingApi =
+          /not found|failed to fetch|network|404/i.test(msg) || res.error.status === 404;
+        setError(looksLikeMissingApi ? "Sign-in service is not available. Please try again in a minute." : msg);
+        setLoading(false);
+        return;
+      }
       const role = (res.data?.user as SessionUser | undefined)?.role;
       navigate(homeForRole(role), { replace: true });
     } catch {
