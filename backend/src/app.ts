@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import "./env";
 import { auth } from "./auth";
+import { prisma } from "./prisma";
 import { sessionMiddleware, type AppEnv } from "./middleware/auth";
 
 import { meRouter } from "./routes/me";
@@ -47,12 +48,21 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 app.use("*", sessionMiddleware);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
-app.get("/api/health", (c) => {
+app.get("/api/health", async (c) => {
   const missing = ["DATABASE_URL", "BETTER_AUTH_SECRET"].filter((k) => !process.env[k]);
   if (missing.length) {
     return c.json({ status: "misconfigured", missing }, 500);
   }
-  return c.json({ status: "ok" });
+  try {
+    const admin = await prisma.user.findUnique({
+      where: { email: "admin@lokansh.in" },
+      select: { id: true },
+    });
+    return c.json({ status: "ok", adminExists: Boolean(admin) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return c.json({ status: "db_error", message }, 500);
+  }
 });
 
 app.route("/api/v1/public", publicRouter);
