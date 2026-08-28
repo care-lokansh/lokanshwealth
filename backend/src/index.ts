@@ -1,5 +1,6 @@
 if (!process.env.VERCEL) {
-  await import("@vibecodeapp/proxy"); // local / Vibecode only
+  await import("@vibecodeapp/proxy");
+  await import("./load-prod-env");
 }
 import { app } from "./app";
 
