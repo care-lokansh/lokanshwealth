@@ -31,7 +31,7 @@ function validateEnv() {
         console.error(`  - ${err.path.join(".")}: ${err.message}`);
       });
       console.error("\nPlease check your .env file and ensure all required variables are set.");
-      process.exit(1);
+      throw error;
     }
     throw error;
   }
