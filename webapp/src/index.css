@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Lokansh Wealth — premium editorial financial brand.
+   Warm cream canvas, deep emerald (prosperity), gold accents.
+   All colors MUST be HSL. */
+
+@layer base {
+  :root {
+    /* Site page background — #F4E7E1 (soft blush). Tiles use #EEEEEE. */
+    --background: 19 46% 92%;
+    --foreground: 222 47% 12%;
+
+    /* Tiles / cards / surfaces — #EEEEEE. */
+    --card: 0 0% 93%;
+    --card-foreground: 222 47% 12%;
+
+    --popover: 0 0% 93%;
+    --popover-foreground: 222 47% 12%;
+
+    --primary: 221 72% 38%;
+    --primary-foreground: 210 60% 98%;
+
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 221 72% 32%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 217 18% 42%;
+
+    --accent: 42 96% 52%;
+    --accent-foreground: 222 47% 14%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 221 72% 38%;
+
+    --radius: 0.85rem;
+
+    --gold: 42 96% 52%;
+    --gold-soft: 46 98% 64%;
+    --blue-deep: 222 60% 16%;
+
+    --sidebar-background: 222 60% 14%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 42 96% 54%;
+    --sidebar-primary-foreground: 222 47% 14%;
+    --sidebar-accent: 221 45% 22%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 221 35% 26%;
+    --sidebar-ring: 42 96% 54%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 44% 10%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 217 85% 60%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 222 28% 16%;
+    --muted-foreground: 215 20% 64%;
+
+    --accent: 42 96% 56%;
+    --accent-foreground: 222 47% 10%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 222 26% 20%;
+    --input: 222 26% 20%;
+    --ring: 217 85% 60%;
+
+    --gold: 42 96% 56%;
+    --gold-soft: 46 98% 66%;
+    --blue-deep: 222 60% 12%;
+
+    --sidebar-background: 222 50% 9%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 42 96% 56%;
+    --sidebar-primary-foreground: 222 47% 10%;
+    --sidebar-accent: 222 30% 16%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 26% 20%;
+    --sidebar-ring: 42 96% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* Never allow sideways scrolling / empty horizontal gutter. */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Manrope", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Fraunces", Georgia, serif;
+  }
+}
+
+/* ============================================================================
+   LMS — Loan Disbursement Operations console.
+   Scoped under `.lms` so the marketing site keeps its own theme.
+   Warm cream canvas + saffron (#E8651A ≈ hsl(22 82% 51%)) + warm-dark sidebar.
+   ============================================================================ */
+.lms {
+  --background: 36 33% 96%;
+  --foreground: 24 14% 15%;
+
+  --card: 40 40% 99%;
+  --card-foreground: 24 14% 15%;
+
+  --popover: 40 40% 99%;
+  --popover-foreground: 24 14% 15%;
+
+  --primary: 22 82% 51%;
+  --primary-foreground: 40 60% 99%;
+
+  --secondary: 33 28% 90%;
+  --secondary-foreground: 24 30% 24%;
+
+  --muted: 33 24% 91%;
+  --muted-foreground: 28 10% 42%;
+
+  --accent: 30 60% 92%;
+  --accent-foreground: 22 60% 32%;
+
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 99%;
+
+  --border: 32 20% 86%;
+  --input: 32 20% 84%;
+  --ring: 22 82% 51%;
+
+  --radius: 0.6rem;
+
+  /* Status palette */
+  --status-approved: 152 55% 38%;
+  --status-process: 38 92% 46%;
+  --status-rejected: 0 72% 50%;
+  --status-disbursed: 211 78% 48%;
+  --status-neutral: 28 8% 48%;
+
+  /* Warm-dark sidebar (not corporate blue) */
+  --sidebar-background: 24 16% 12%;
+  --sidebar-foreground: 36 18% 86%;
+  --sidebar-primary: 22 82% 54%;
+  --sidebar-primary-foreground: 24 30% 10%;
+  --sidebar-accent: 24 14% 18%;
+  --sidebar-accent-foreground: 36 24% 92%;
+  --sidebar-border: 24 12% 22%;
+  --sidebar-ring: 22 82% 54%;
+
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: hsl(var(--foreground));
+}
+
+.lms h1, .lms h2, .lms h3, .lms h4, .lms h5 {
+  font-family: "DM Sans", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+@layer utilities {
+  .font-mono-num {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-feature-settings: "tnum" 1;
+  }
+  .font-display {
+    font-family: "Fraunces", Georgia, serif;
+  }
+
+  .text-gradient-gold {
+    /* Solid deep gold (no shine gradient) for strong legibility on the light page. */
+    color: hsl(40 92% 42%);
+  }
+
+  .grain {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.4) 0.5px, transparent 0.5px);
+    background-size: 18px 18px;
+  }
+}

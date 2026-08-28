@@ -1,0 +1,396 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Better Auth models (email + password) with an LMS role on the user
+// ----------------------------------------------------------------------------
+
+enum Role {
+  SUPER_ADMIN
+  WORKER
+  APPLICANT
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          Role      @default(APPLICANT)
+  // Worker / admin profile extras
+  phone         String?
+  officePhone   String? // shown to applicants as their relationship manager line
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  // LMS relations
+  applications     Application[]   @relation("ApplicantApplications")
+  assignedFiles    Application[]   @relation("AssignedWorker")
+  callLogs         CallLog[]
+  stageChanges     StageHistory[]
+  notes            InternalNote[]
+  docReviews       Document[]      @relation("DocReviewer")
+  disbursements    Disbursement[]
+  communications   Communication[]
+
+  @@index([role])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// Loan product catalogue (admin-configurable)
+// ----------------------------------------------------------------------------
+
+model LoanProduct {
+  id                  String  @id @default(cuid())
+  code                String  @unique // e.g. SALARIED_PERSONAL, HOME, MUDRA_SHISHU
+  name                String
+  category            String // grouping label e.g. "Personal", "Business", "Secured", "Agri"
+  enabled             Boolean @default(true)
+  minAmount           Int // in rupees
+  maxAmount           Int // in rupees
+  processingFeePct    Float   @default(1.0)
+  interestMin         Float // % p.a.
+  interestMax         Float // % p.a.
+  typicalProcessDays  Int     @default(7)
+  // Document checklist as JSON: [{ key, label, required, appliesTo? }]
+  docChecklist        Json
+  sortOrder           Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// Loan application (the "file")
+// ----------------------------------------------------------------------------
+
+enum AppStatus {
+  IN_PROCESS
+  APPROVED
+  REJECTED
+  DISBURSED
+}
+
+enum Stage {
+  APPLICATION_RECEIVED
+  DOCUMENT_COLLECTION
+  DOCUMENT_VERIFICATION
+  CREDIT_CHECK
+  SENT_TO_LENDER
+  LENDER_REVIEW
+  SANCTION_LETTER_ISSUED
+  LEGAL_TECHNICAL_VERIFICATION
+  AGREEMENT_SIGNING
+  DISBURSEMENT_INITIATED
+  DISBURSED
+  CLOSED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  OTHER
+}
+
+enum ResidentialStatus {
+  OWNED
+  RENTED
+}
+
+enum EmploymentType {
+  SALARIED
+  SELF_EMPLOYED_PROFESSIONAL
+  SELF_EMPLOYED_BUSINESS
+  AGRICULTURIST
+  PENSIONER
+}
+
+model Application {
+  id  String @id @default(cuid())
+  arn String @unique // LMS-YYYY-XXXXXX
+
+  // Ownership / assignment
+  applicantId      String?
+  applicant        User?   @relation("ApplicantApplications", fields: [applicantId], references: [id])
+  assignedWorkerId String?
+  assignedWorker   User?   @relation("AssignedWorker", fields: [assignedWorkerId], references: [id])
+
+  // Loan core
+  loanType   String // references LoanProduct.code
+  amount     Int // applied amount, rupees
+  tenureMonths Int
+  purpose    String?
+  existingEmi Int    @default(0)
+  existingOutstanding Int @default(0)
+  cibilScore Int?
+
+  // Pipeline
+  stage  Stage     @default(APPLICATION_RECEIVED)
+  status AppStatus @default(IN_PROCESS)
+
+  // Personal details
+  fullName          String
+  fatherName        String?
+  dob               DateTime?
+  gender            Gender?
+  maritalStatus     MaritalStatus?
+  mobile            String
+  email             String?
+  currentAddress    String?
+  currentPincode    String?
+  permanentAddress  String?
+  city              String?
+  state             String?
+  residentialStatus ResidentialStatus?
+
+  // KYC
+  pan     String?
+  aadhaar String? // stored full, masked on display
+
+  // Employment (type-specific fields kept in JSON to stay flexible)
+  employmentType EmploymentType?
+  employment     Json? // { companyName, designation, doj, monthlySalary, salaryMode, hrContact, natureOfBusiness, yearsInBusiness, annualTurnover, gstNumber, udyamNumber, landAcres, cropType, kccNumber }
+
+  // Financials (one-to-one fields)
+  sanctionedAmount Int?
+  interestRate     Float?
+  processingFee    Int?
+  emi              Int?
+  dpBankName       String?
+  dpAccountNumber  String?
+  dpIfsc           String?
+  dpAccountHolder  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents      Document[]
+  callLogs       CallLog[]
+  stageHistory   StageHistory[]
+  disbursements  Disbursement[]
+  notes          InternalNote[]
+  communications Communication[]
+
+  @@index([assignedWorkerId])
+  @@index([applicantId])
+  @@index([status])
+  @@index([stage])
+  @@index([loanType])
+  @@index([createdAt])
+}
+
+// ----------------------------------------------------------------------------
+// Documents
+// ----------------------------------------------------------------------------
+
+enum DocStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model Document {
+  id            String    @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  docKey        String // matches checklist key e.g. "pan", "aadhaar_front"
+  label         String
+  fileUrl       String
+  fileName      String
+  mimeType      String?
+  sizeBytes     Int?
+  status        DocStatus @default(PENDING)
+  rejectionReason String?
+  reviewedById  String?
+  reviewedBy    User?     @relation("DocReviewer", fields: [reviewedById], references: [id])
+  reviewedAt    DateTime?
+  uploadedAt    DateTime  @default(now())
+
+  @@index([applicationId])
+}
+
+// ----------------------------------------------------------------------------
+// Call log
+// ----------------------------------------------------------------------------
+
+enum CallOutcome {
+  CONNECTED
+  NOT_REACHABLE
+  CALL_BACK_LATER
+  NUMBER_BUSY
+  WRONG_NUMBER
+  SWITCHED_OFF
+}
+
+model CallLog {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  workerId      String
+  worker        User        @relation(fields: [workerId], references: [id])
+  calledAt      DateTime    @default(now())
+  outcome       CallOutcome
+  durationMins  Int         @default(0)
+  notes         String?
+  followUpAt    DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId])
+}
+
+// ----------------------------------------------------------------------------
+// Stage history (pipeline transitions)
+// ----------------------------------------------------------------------------
+
+model StageHistory {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStage     Stage?
+  toStage       Stage
+  reason        String
+  changedById   String
+  changedBy     User        @relation(fields: [changedById], references: [id])
+  changedAt     DateTime    @default(now())
+
+  @@index([applicationId])
+}
+
+// ----------------------------------------------------------------------------
+// Disbursement tranches
+// ----------------------------------------------------------------------------
+
+enum DisbursementMode {
+  NEFT
+  RTGS
+  IMPS
+  CHEQUE
+}
+
+model Disbursement {
+  id            String           @id @default(cuid())
+  applicationId String
+  application   Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  amount        Int
+  mode          DisbursementMode
+  utr           String? // UTR / NEFT / IMPS reference
+  disbursedAt   DateTime
+  note          String? // e.g. "Tranche 1 of 3"
+  createdById   String
+  createdBy     User             @relation(fields: [createdById], references: [id])
+  createdAt     DateTime         @default(now())
+
+  @@index([applicationId])
+}
+
+// ----------------------------------------------------------------------------
+// Internal notes
+// ----------------------------------------------------------------------------
+
+enum NoteTag {
+  NONE
+  URGENT
+  FOLLOW_UP
+  ESCALATED
+}
+
+model InternalNote {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User        @relation(fields: [authorId], references: [id])
+  body          String
+  tag           NoteTag     @default(NONE)
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId])
+}
+
+// ----------------------------------------------------------------------------
+// Applicant communications (SMS / email / whatsapp templates)
+// ----------------------------------------------------------------------------
+
+enum CommChannel {
+  SMS
+  EMAIL
+  WHATSAPP
+}
+
+enum CommStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model Communication {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  channel       CommChannel
+  template      String // e.g. "APPLICATION_RECEIVED"
+  subject       String?
+  body          String
+  status        CommStatus  @default(SENT)
+  sentById      String
+  sentBy        User        @relation(fields: [sentById], references: [id])
+  sentAt        DateTime    @default(now())
+
+  @@index([applicationId])
+}
