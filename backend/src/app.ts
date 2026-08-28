@@ -75,11 +75,15 @@ app.post("/api/bootstrap-admin", async (c) => {
   if (!user) return c.json({ error: "admin missing" }, 404);
   const ctx = await auth.$context;
   const hash = await ctx.password.hash(password);
-  await prisma.account.updateMany({
-    where: { userId: user.id, providerId: "credential" },
+  const updated = await prisma.account.updateMany({
+    where: { userId: user.id },
     data: { password: hash },
   });
-  return c.json({ ok: true });
+  const accounts = await prisma.account.findMany({
+    where: { userId: user.id },
+    select: { providerId: true },
+  });
+  return c.json({ ok: true, updated: updated.count, providers: accounts.map((a) => a.providerId) });
 });
 
 app.route("/api/v1/public", publicRouter);
