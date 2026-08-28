@@ -18,7 +18,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const isProduction =
   process.env.NODE_ENV === "production" || process.env.ENVIRONMENT === "production";
 
-if (isProduction) {
+// On Vercel, use dashboard env vars only — do not overlay .env.production (Vibecode URL).
+if (isProduction && !process.env.VERCEL) {
   try {
     const envProdPath = join(__dirname, "../.env.production");
     const content = readFileSync(envProdPath, "utf-8");

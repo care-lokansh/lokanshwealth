@@ -3,10 +3,17 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { env } from "./env";
 
+function resolveBaseURL(): string {
+  const u = (process.env.BACKEND_URL || "").replace(/\/$/, "");
+  if (/lokanshwealth\.com/i.test(u)) return u;
+  if (process.env.VERCEL) return "https://www.lokanshwealth.com";
+  return u || env.BACKEND_URL || "http://localhost:3000";
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: env.BACKEND_URL,
+  baseURL: resolveBaseURL(),
   emailAndPassword: {
     enabled: true,
     // Demo / preview: no email verification gate so seeded accounts log in immediately.
@@ -30,6 +37,10 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:*",
     "http://127.0.0.1:*",
+    "https://lokanshwealth.com",
+    "https://www.lokanshwealth.com",
+    "https://lokanshwealth.vercel.app",
+    "https://*.vercel.app",
     "https://*.dev.vibecode.run",
     "https://*.vibecode.run",
     "https://*.vibecodeapp.com",

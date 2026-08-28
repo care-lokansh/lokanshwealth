@@ -54,7 +54,7 @@ function CreateWorkerDialog({ open, onOpenChange }: { open: boolean; onOpenChang
         <div className="space-y-3">
           <div className="space-y-1.5"><Label>Full name</Label><Input value={form.name} onChange={set("name")} /></div>
           <div className="space-y-1.5"><Label>Email</Label><Input type="email" value={form.email} onChange={set("email")} /></div>
-          <div className="space-y-1.5"><Label>Temporary password</Label><Input value={form.password} onChange={set("password")} placeholder="Min 8 characters" /></div>
+          <div className="space-y-1.5"><Label>Temporary password</Label><Input type="password" value={form.password} onChange={set("password")} placeholder="Min 8 characters" autoComplete="new-password" /></div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Mobile</Label><Input value={form.phone} onChange={set("phone")} className="font-mono-num" /></div>
             <div className="space-y-1.5"><Label>Office phone</Label><Input value={form.officePhone} onChange={set("officePhone")} className="font-mono-num" /></div>
@@ -83,7 +83,7 @@ function ResetPasswordDialog({ worker, open, onOpenChange }: { worker: WorkerRec
           <DialogTitle>Reset password</DialogTitle>
           <DialogDescription>Set a new password for {worker?.name}.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-1.5"><Label>New password</Label><Input value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Min 8 characters" /></div>
+        <div className="space-y-1.5"><Label>New password</Label><Input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Min 8 characters" autoComplete="new-password" /></div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button disabled={pw.length < 8 || mut.isPending} onClick={() => mut.mutate()}>{mut.isPending ? "Saving…" : "Reset"}</Button>

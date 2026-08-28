@@ -1,6 +1,8 @@
 {
-  "installCommand": "npm install --prefix webapp",
-  "buildCommand": "npm run build --prefix webapp",
+  "installCommand": "npm install && npm install --prefix webapp && npm install --prefix backend",
+  "buildCommand": "npx prisma generate --schema backend/prisma/schema.prisma && npm run build --prefix webapp",
   "outputDirectory": "webapp/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

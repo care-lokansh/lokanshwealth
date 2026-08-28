@@ -1,4 +1,6 @@
-import "@vibecodeapp/proxy"; // DO NOT REMOVE OTHERWISE VIBECODE PROXY WILL NOT WORK
+if (!process.env.VERCEL) {
+  await import("@vibecodeapp/proxy"); // local / Vibecode only
+}
 import "./load-prod-env"; // MUST be first: production env override that survives template upgrades
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -26,6 +28,9 @@ const app = new Hono<AppEnv>();
 const allowed = [
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/(www\.)?lokanshwealth\.com$/,
+  /^https:\/\/lokanshwealth\.vercel\.app$/,
+  /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
   /^https:\/\/[a-z0-9-]+\.dev\.vibecode\.run$/,
   /^https:\/\/[a-z0-9-]+\.vibecode\.run$/,
   /^https:\/\/[a-z0-9-]+\.vibecodeapp\.com$/,
@@ -68,6 +73,8 @@ app.route("/api/v1/analytics", analyticsRouter);
 
 // LMS API server — Lokansh Wealth loan operations
 const port = Number(process.env.PORT) || 3000;
+
+export { app };
 
 export default {
   port,

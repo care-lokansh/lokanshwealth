@@ -6,16 +6,6 @@ DD/MM/YYYY dates, and PAN/Aadhaar/IFSC/mobile validation throughout.
 
 The public marketing site lives at `/` and `/calculator`. The operations console lives under `/app`.
 
-## Demo logins (`/app/login`)
-| Role | Email | Password |
-|------|-------|----------|
-| Super Admin | `admin@lokansh.in` | `Admin@12345` |
-| Worker | `rahul@lokansh.in` | `Worker@12345` |
-| Worker | `priya@lokansh.in` | `Worker@12345` |
-| Applicant | `applicant@lokansh.in` | `Apply@12345` |
-
-Re-seed anytime with `cd backend && bun run prisma/seed.ts` (idempotent — skips existing data).
-
 ## Roles & screens
 - **Super Admin** — Dashboard (`/app/admin`), Analytics (`/app/analytics`), all Files,
   Workers management (`/app/workers`), Loan Products config (`/app/products`), CSV export.

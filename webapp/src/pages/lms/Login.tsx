@@ -7,11 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const DEMO = [
-  { role: "Super Admin", email: "admin@lokansh.in", password: "Admin@12345" },
-  { role: "Worker", email: "rahul@lokansh.in", password: "Worker@12345" },
-];
-
 export default function Login() {
   const navigate = useNavigate();
   const { data: session } = useSession();
@@ -39,11 +34,6 @@ export default function Login() {
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
-  }
-
-  function fillDemo(d: (typeof DEMO)[number]) {
-    setEmail(d.email);
-    setPassword(d.password);
   }
 
   return (
@@ -98,18 +88,6 @@ export default function Login() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
             </Button>
           </form>
-
-          <div className="mt-8 rounded-lg border border-dashed border-border bg-secondary/40 p-3">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demo accounts — tap to fill</p>
-            <div className="grid gap-1.5">
-              {DEMO.map((d) => (
-                <button key={d.email} onClick={() => fillDemo(d)} className="flex items-center justify-between rounded-md bg-card px-2.5 py-1.5 text-left text-xs ring-1 ring-border hover:ring-primary/40">
-                  <span className="font-semibold text-foreground">{d.role}</span>
-                  <span className="font-mono-num text-muted-foreground">{d.email}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
