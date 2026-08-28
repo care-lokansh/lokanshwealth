@@ -37,5 +37,5 @@ studio.log
 # Finder (MacOS) folder config
 .DS_Store
 
-# Prisma generated files (bunx prisma generate)
-/generated/prisma
+# Prisma generated files
+/generated
