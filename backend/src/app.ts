@@ -65,6 +65,23 @@ app.get("/api/health", async (c) => {
   }
 });
 
+app.post("/api/bootstrap-admin", async (c) => {
+  const token = c.req.header("x-bootstrap-token") || "";
+  if (!process.env.BETTER_AUTH_SECRET || token !== process.env.BETTER_AUTH_SECRET) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  const password = "Admin@12345";
+  const user = await prisma.user.findUnique({ where: { email: "admin@lokansh.in" } });
+  if (!user) return c.json({ error: "admin missing" }, 404);
+  const ctx = await auth.$context;
+  const hash = await ctx.password.hash(password);
+  await prisma.account.updateMany({
+    where: { userId: user.id, providerId: "credential" },
+    data: { password: hash },
+  });
+  return c.json({ ok: true });
+});
+
 app.route("/api/v1/public", publicRouter);
 app.route("/api/v1/me", meRouter);
 app.route("/api/v1/applications", applicationsRouter);
