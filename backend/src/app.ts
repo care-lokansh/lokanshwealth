@@ -48,7 +48,13 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 app.use("*", sessionMiddleware);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
-app.get("/api/health", (c) => c.json({ status: "ok" }));
+app.get("/api/health", (c) => {
+  const missing = ["DATABASE_URL", "BETTER_AUTH_SECRET"].filter((k) => !process.env[k]);
+  if (missing.length) {
+    return c.json({ status: "misconfigured", missing }, 500);
+  }
+  return c.json({ status: "ok" });
+});
 
 app.route("/api/v1/public", publicRouter);
 app.route("/api/v1/me", meRouter);

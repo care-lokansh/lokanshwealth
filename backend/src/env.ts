@@ -9,10 +9,10 @@ const envSchema = z.object({
   PORT: z.string().optional().default("3000"),
   NODE_ENV: z.string().optional(),
   // Database (Supabase Postgres)
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z.string().optional().default(""),
   DIRECT_URL: z.string().optional(),
   // Auth
-  BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
+  BETTER_AUTH_SECRET: z.string().optional().default(""),
   BACKEND_URL: z.string().optional(),
 });
 
@@ -20,21 +20,13 @@ const envSchema = z.object({
  * Validate and parse environment variables
  */
 function validateEnv() {
-  try {
-    const parsed = envSchema.parse(process.env);
+  const parsed = envSchema.parse(process.env);
+  if (!parsed.DATABASE_URL || !parsed.BETTER_AUTH_SECRET) {
+    console.warn("⚠️ DATABASE_URL or BETTER_AUTH_SECRET is not set");
+  } else {
     console.log("✅ Environment variables validated successfully");
-    return parsed;
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("❌ Environment variable validation failed:");
-      error.issues.forEach((err: any) => {
-        console.error(`  - ${err.path.join(".")}: ${err.message}`);
-      });
-      console.error("\nPlease check your .env file and ensure all required variables are set.");
-      throw error;
-    }
-    throw error;
   }
+  return parsed;
 }
 
 /**

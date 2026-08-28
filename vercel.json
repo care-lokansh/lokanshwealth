@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install && npm install --prefix webapp && npm install --prefix backend",
-  "buildCommand": "npx prisma generate --schema backend/prisma/schema.prisma && npm run build --prefix webapp",
+  "buildCommand": "npx prisma generate --schema backend/prisma/schema.prisma && npx esbuild backend/src/app.ts --bundle --platform=node --format=esm --outfile=api/_app.js --packages=external && npm run build --prefix webapp",
   "outputDirectory": "webapp/dist",
   "functions": {
     "api/index.ts": {
