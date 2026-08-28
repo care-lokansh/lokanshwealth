@@ -5,3 +5,4 @@ node_modules
 .env.*
 !.env.example
 api/_app.js
+api/_app.cjs
