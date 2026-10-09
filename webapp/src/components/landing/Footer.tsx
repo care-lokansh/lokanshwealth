@@ -20,9 +20,12 @@ export function Footer() {
               >
                 <Phone className="h-4 w-4 text-accent" /> +91 70532 31846
               </a>
-              <p className="flex items-center gap-2.5 text-sidebar-foreground/70">
+              <a
+                href="mailto:care@lokanshwealth.in"
+                className="flex items-center gap-2.5 text-sidebar-foreground/70 transition-colors hover:text-accent"
+              >
                 <Mail className="h-4 w-4 text-accent" /> care@lokanshwealth.in
-              </p>
+              </a>
               <p className="flex items-center gap-2.5 text-sidebar-foreground/70">
                 <MapPin className="h-4 w-4 text-accent" /> Delhi
               </p>
@@ -31,16 +34,30 @@ export function Footer() {
 
           <FooterCol
             title="Loans"
-            links={LOAN_TYPES.slice(0, 5).map((l) => l.title)}
+            links={LOAN_TYPES.slice(0, 5).map((l) => ({
+              label: l.title,
+              href: `/apply/${l.code}`,
+            }))}
           />
           <FooterCol
             title="Company"
-            links={["About us", "Careers", "Partners", "Contact", "Blog"]}
-            extra={[{ label: "Track your application", href: "/track" }]}
+            links={[
+              { label: "Track your application", href: "/track" },
+              { label: "About us", href: "/about" },
+              { label: "Careers", href: "/careers" },
+              { label: "Partners", href: "/partners" },
+              { label: "Contact", href: "/contact" },
+              { label: "Blog", href: "/blog" },
+            ]}
           />
           <FooterCol
             title="Legal"
-            links={["Privacy policy", "Terms of use", "Fair practice code", "Grievance"]}
+            links={[
+              { label: "Privacy policy", href: "/privacy" },
+              { label: "Terms of use", href: "/terms" },
+              { label: "Fair practice code", href: "/fair-practice" },
+              { label: "Grievance", href: "/grievance" },
+            ]}
           />
         </div>
 
@@ -59,34 +76,21 @@ export function Footer() {
 function FooterCol({
   title,
   links,
-  extra,
 }: {
   title: string;
-  links: string[];
-  /** Links that point somewhere real, rendered first. */
-  extra?: { label: string; href: string }[];
+  links: { label: string; href: string }[];
 }) {
   return (
     <div>
       <h4 className="font-display text-sm font-semibold text-sidebar-foreground">{title}</h4>
       <ul className="mt-4 space-y-2.5">
-        {extra?.map((l) => (
-          <li key={l.href}>
+        {links.map((l) => (
+          <li key={l.href + l.label}>
             <a
               href={l.href}
-              className="text-sm font-semibold text-sidebar-foreground/80 transition-colors hover:text-accent"
+              className="text-sm text-sidebar-foreground/80 transition-colors hover:text-accent"
             >
               {l.label}
-            </a>
-          </li>
-        ))}
-        {links.map((l) => (
-          <li key={l}>
-            <a
-              href="#apply"
-              className="text-sm text-sidebar-foreground/60 transition-colors hover:text-accent"
-            >
-              {l}
             </a>
           </li>
         ))}
