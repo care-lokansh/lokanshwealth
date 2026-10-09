@@ -232,7 +232,7 @@ function ApplyBody() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-20 pt-24 sm:pt-28">
+    <main className="mx-auto max-w-3xl px-5 pb-20 pt-32 sm:pt-36">
       <Link
         to="/"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
