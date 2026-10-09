@@ -7,6 +7,15 @@ import Index from "./pages/Index";
 import Calculator from "./pages/Calculator";
 import Apply from "./pages/Apply";
 import Track from "./pages/Track";
+import AboutPage from "./pages/site/AboutPage";
+import Careers from "./pages/site/Careers";
+import Partners from "./pages/site/Partners";
+import Contact from "./pages/site/Contact";
+import Blog from "./pages/site/Blog";
+import Privacy from "./pages/site/Privacy";
+import Terms from "./pages/site/Terms";
+import FairPractice from "./pages/site/FairPractice";
+import Grievance from "./pages/site/Grievance";
 import NotFound from "./pages/NotFound";
 
 import { useSession, type SessionUser } from "@/lib/auth-client";
@@ -55,6 +64,15 @@ const App = () => (
           <Route path="/apply" element={<Apply />} />
           <Route path="/apply/:code" element={<Apply />} />
           <Route path="/track" element={<Track />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/fair-practice" element={<FairPractice />} />
+          <Route path="/grievance" element={<Grievance />} />
 
           {/* LMS console */}
           <Route path="/app" element={<AppHome />} />
