@@ -34,12 +34,12 @@ export function Logo({ className, light = false }: { className?: string; light?:
     );
   }
 
-  // Header: static image logo.
+  // Header: full company mark — keep it large.
   return (
     <img
-      src="/logo.png"
-      className={cn("h-[3.6rem] w-auto object-contain", className)}
-      alt="Lokansh Wealth"
+      src="/logo-full.png"
+      className={cn("h-[5.75rem] w-auto max-w-[min(58vw,17.5rem)] object-contain sm:h-[6.75rem] sm:max-w-[20rem]", className)}
+      alt="Lokansh Wealth Private Limited"
     />
   );
 }
