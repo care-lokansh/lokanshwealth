@@ -14,7 +14,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden pt-24 pb-8 sm:pt-28 sm:pb-10"
+      className="relative overflow-hidden pt-32 pb-8 sm:pt-36 sm:pb-10"
     >
       {/* atmosphere */}
       <div className="pointer-events-none absolute inset-0">
