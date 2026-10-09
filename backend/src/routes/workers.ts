@@ -46,15 +46,34 @@ workersRouter.post("/", zValidator("json", WorkerCreateSchema), async (c) => {
   return c.json(ok(worker), 201);
 });
 
-// Update worker profile / activate-deactivate.
+async function revokeSessions(userId: string) {
+  await prisma.session.deleteMany({ where: { userId } });
+}
+
+// Update worker profile / activate-deactivate / change login email.
 workersRouter.patch("/:id", zValidator("json", WorkerUpdateSchema), async (c) => {
   const worker = await prisma.user.findFirst({ where: { id: c.req.param("id"), role: "WORKER" } });
   if (!worker) return c.json(fail("Worker not found", "NOT_FOUND"), 404);
+  const input = c.req.valid("json");
+
+  if (input.email && input.email.toLowerCase() !== worker.email.toLowerCase()) {
+    const taken = await prisma.user.findUnique({ where: { email: input.email } });
+    if (taken) return c.json(fail("Email already in use", "EMAIL_TAKEN"), 409);
+  }
+
   const updated = await prisma.user.update({
     where: { id: worker.id },
-    data: c.req.valid("json"),
+    data: {
+      name: input.name,
+      email: input.email,
+      phone: input.phone,
+      officePhone: input.officePhone,
+      active: input.active,
+    },
     select: { id: true, name: true, email: true, phone: true, officePhone: true, active: true },
   });
+
+  if (input.active === false) await revokeSessions(worker.id);
   return c.json(ok(updated));
 });
 
