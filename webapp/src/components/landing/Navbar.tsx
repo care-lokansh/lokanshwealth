@@ -32,7 +32,7 @@ export function Navbar() {
         scrolled ? "border-b border-border shadow-sm" : "border-b border-border/60",
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <nav className="mx-auto flex h-[6.5rem] max-w-6xl items-center justify-between gap-4 px-5 sm:h-[7.5rem]">
         <a href="/" className="shrink-0">
           <Logo />
         </a>
