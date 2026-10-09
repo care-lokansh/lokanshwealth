@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Loader2, UserPlus, KeyRound, Activity, Phone, Mail, Circle, Briefcase,
+  Loader2, UserPlus, KeyRound, Activity, Phone, Mail, Circle, Briefcase, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api, ApiError } from "@/lib/api";
@@ -35,7 +35,7 @@ function CreateWorkerDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["workers"] });
-      toast.success("Worker account created.");
+      toast.success("Staff login created.");
       setForm({ name: "", email: "", password: "", phone: "", officePhone: "" });
       onOpenChange(false);
     },
@@ -48,8 +48,8 @@ function CreateWorkerDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create worker account</DialogTitle>
-          <DialogDescription>The worker can log in immediately with these credentials.</DialogDescription>
+          <DialogTitle>Create staff login</DialogTitle>
+          <DialogDescription>They can sign in at /app/login immediately with this email and password.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5"><Label>Full name</Label><Input value={form.name} onChange={set("name")} /></div>
@@ -62,7 +62,64 @@ function CreateWorkerDialog({ open, onOpenChange }: { open: boolean; onOpenChang
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button disabled={!valid || mut.isPending} onClick={() => mut.mutate()}>{mut.isPending ? "Creating…" : "Create worker"}</Button>
+          <Button disabled={!valid || mut.isPending} onClick={() => mut.mutate()}>{mut.isPending ? "Creating…" : "Create staff"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditWorkerDialog({ worker, open, onOpenChange }: { worker: WorkerRec | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({ name: "", email: "", phone: "", officePhone: "" });
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  useEffect(() => {
+    if (open && worker) {
+      setForm({
+        name: worker.name,
+        email: worker.email,
+        phone: worker.phone ?? "",
+        officePhone: worker.officePhone ?? "",
+      });
+    }
+  }, [open, worker]);
+
+  const mut = useMutation({
+    mutationFn: () => api.patch(`/api/v1/workers/${worker!.id}`, {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim() || undefined,
+      officePhone: form.officePhone.trim() || undefined,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workers"] });
+      toast.success("Staff details updated.");
+      onOpenChange(false);
+    },
+    onError: (e: unknown) => toast.error(e instanceof ApiError ? e.message : "Could not update staff."),
+  });
+
+  const valid = form.name.trim().length >= 2 && /\S+@\S+\.\S+/.test(form.email);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit staff login</DialogTitle>
+          <DialogDescription>Change name, email (login ID), or phone for {worker?.name}.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5"><Label>Full name</Label><Input value={form.name} onChange={set("name")} /></div>
+          <div className="space-y-1.5"><Label>Login email</Label><Input type="email" value={form.email} onChange={set("email")} /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5"><Label>Mobile</Label><Input value={form.phone} onChange={set("phone")} className="font-mono-num" /></div>
+            <div className="space-y-1.5"><Label>Office phone</Label><Input value={form.officePhone} onChange={set("officePhone")} className="font-mono-num" /></div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button disabled={!valid || mut.isPending} onClick={() => mut.mutate()}>{mut.isPending ? "Saving…" : "Save"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -136,6 +193,7 @@ function ActivityDialog({ worker, open, onOpenChange }: { worker: WorkerRec | nu
 export default function Workers() {
   const qc = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
+  const [editWorker, setEditWorker] = useState<WorkerRec | null>(null);
   const [resetWorker, setResetWorker] = useState<WorkerRec | null>(null);
   const [activityWorker, setActivityWorker] = useState<WorkerRec | null>(null);
 
@@ -146,7 +204,10 @@ export default function Workers() {
 
   const toggleActive = useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) => api.patch(`/api/v1/workers/${id}`, { active }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["workers"] }); toast.success("Worker updated."); },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ["workers"] });
+      toast.success(vars.active ? "Access restored." : "Access revoked. They can no longer sign in.");
+    },
     onError: (e: unknown) => toast.error(e instanceof ApiError ? e.message : "Update failed."),
   });
 
@@ -154,17 +215,17 @@ export default function Workers() {
     <div className="px-4 py-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Workers <span className="text-base font-normal text-muted-foreground">· Karmchari</span></h1>
-          <p className="text-sm text-muted-foreground">{workers?.length ?? 0} operations workers on the desk.</p>
+          <h1 className="text-xl font-bold text-foreground">Staff logins</h1>
+          <p className="text-sm text-muted-foreground">Create IDs, reset passwords, or revoke access. {workers?.length ?? 0} staff on the desk.</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}><UserPlus className="mr-1.5 h-4 w-4" /> Add worker</Button>
+        <Button onClick={() => setCreateOpen(true)}><UserPlus className="mr-1.5 h-4 w-4" /> Add staff</Button>
       </div>
 
       <div className="mt-5">
         {isLoading ? (
           <div className="flex h-40 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : (workers ?? []).length === 0 ? (
-          <SectionCard><EmptyState icon={<Briefcase className="h-8 w-8" />} title="No workers yet" hint="Add your first operations worker to start assigning files." /></SectionCard>
+          <SectionCard><EmptyState icon={<Briefcase className="h-8 w-8" />} title="No staff yet" hint="Add a staff login with email and password. They can sign in at /app/login right away." /></SectionCard>
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {workers!.map((w) => (
@@ -182,7 +243,10 @@ export default function Workers() {
                       </div>
                     </div>
                   </div>
-                  <Switch checked={w.active} onCheckedChange={(v) => toggleActive.mutate({ id: w.id, active: v })} />
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground">{w.active ? "On" : "Revoked"}</span>
+                    <Switch checked={w.active} onCheckedChange={(v) => toggleActive.mutate({ id: w.id, active: v })} />
+                  </div>
                 </div>
 
                 <div className="mt-3 space-y-1 text-xs text-muted-foreground">
@@ -193,8 +257,9 @@ export default function Workers() {
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <span className="text-xs text-muted-foreground"><span className="font-mono-num font-semibold text-foreground">{w._count.assignedFiles}</span> files assigned</span>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setActivityWorker(w)}><Activity className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setResetWorker(w)}><KeyRound className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="sm" className="h-8 px-2" title="Activity" onClick={() => setActivityWorker(w)}><Activity className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="sm" className="h-8 px-2" title="Edit details" onClick={() => setEditWorker(w)}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="sm" className="h-8 px-2" title="Reset password" onClick={() => setResetWorker(w)}><KeyRound className="h-3.5 w-3.5" /></Button>
                   </div>
                 </div>
               </div>
@@ -204,6 +269,7 @@ export default function Workers() {
       </div>
 
       <CreateWorkerDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <EditWorkerDialog worker={editWorker} open={!!editWorker} onOpenChange={(v) => !v && setEditWorker(null)} />
       <ResetPasswordDialog worker={resetWorker} open={!!resetWorker} onOpenChange={(v) => !v && setResetWorker(null)} />
       <ActivityDialog worker={activityWorker} open={!!activityWorker} onOpenChange={(v) => !v && setActivityWorker(null)} />
     </div>
