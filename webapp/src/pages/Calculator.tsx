@@ -11,7 +11,7 @@ const Calculator = () => {
     <LoanApplicationProvider>
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-28 pb-20 sm:pt-32 sm:pb-28">
+        <main className="pt-36 pb-20 sm:pt-40 sm:pb-28">
           <div className="mx-auto max-w-6xl px-5">
             <div className="text-center">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
