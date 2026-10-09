@@ -16,7 +16,7 @@ export function ContentPage({
     <LoanApplicationProvider>
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-28 pb-20 sm:pt-32 sm:pb-28">
+        <main className="pt-36 pb-20 sm:pt-40 sm:pb-28">
           <article className="mx-auto max-w-3xl px-5">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
             <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
