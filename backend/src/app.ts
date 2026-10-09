@@ -65,38 +65,6 @@ app.get("/api/health", async (c) => {
   }
 });
 
-app.post("/api/bootstrap-admin", async (c) => {
-  const token = c.req.header("x-bootstrap-token") || "";
-  if (!process.env.BETTER_AUTH_SECRET || token !== process.env.BETTER_AUTH_SECRET) {
-    return c.json({ error: "unauthorized" }, 401);
-  }
-  const password = "Admin@12345";
-  const user = await prisma.user.findUnique({ where: { email: "admin@lokansh.in" } });
-  if (!user) return c.json({ error: "admin missing" }, 404);
-  const ctx = await auth.$context;
-  const hash = await ctx.password.hash(password);
-  const updated = await prisma.account.updateMany({
-    where: { userId: user.id },
-    data: { password: hash },
-  });
-  if (updated.count === 0) {
-    await prisma.account.create({
-      data: {
-        id: crypto.randomUUID().replaceAll("-", ""),
-        accountId: user.id,
-        providerId: "credential",
-        userId: user.id,
-        password: hash,
-      },
-    });
-  }
-  const accounts = await prisma.account.findMany({
-    where: { userId: user.id },
-    select: { providerId: true },
-  });
-  return c.json({ ok: true, updated: updated.count, providers: accounts.map((a) => a.providerId) });
-});
-
 app.route("/api/v1/public", publicRouter);
 app.route("/api/v1/me", meRouter);
 app.route("/api/v1/applications", applicationsRouter);
