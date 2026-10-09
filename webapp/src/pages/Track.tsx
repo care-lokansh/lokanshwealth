@@ -91,7 +91,7 @@ function TrackBody() {
   const showResults = activeQuery !== null && results !== undefined;
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-20 pt-24 sm:pt-28">
+    <main className="mx-auto max-w-3xl px-5 pb-20 pt-32 sm:pt-36">
       <div className="text-center">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
           Application status
