@@ -363,11 +363,22 @@ export const WorkerCreateSchema = z.object({
 });
 export const WorkerUpdateSchema = z.object({
   name: z.string().min(2).optional(),
+  email: z.string().email().optional(),
   phone: z.string().optional(),
   officePhone: z.string().optional(),
   active: z.boolean().optional(),
 });
 export const ResetPasswordSchema = z.object({ password: z.string().min(8) });
+
+export const MeUpdateSchema = z.object({
+  name: z.string().min(2).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+});
+export const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
 
 // ---- Helpers ---------------------------------------------------------------
 
