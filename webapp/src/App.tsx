@@ -29,6 +29,7 @@ import Dashboard from "./pages/lms/Dashboard";
 import Analytics from "./pages/lms/Analytics";
 import Workers from "./pages/lms/Workers";
 import Products from "./pages/lms/Products";
+import Account from "./pages/lms/Account";
 import Pool from "./pages/lms/Pool";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const App = () => (
           <Route path="/app/analytics" element={<Guarded roles={ADMIN}><Analytics /></Guarded>} />
           <Route path="/app/workers" element={<Guarded roles={ADMIN}><Workers /></Guarded>} />
           <Route path="/app/products" element={<Guarded roles={ADMIN}><Products /></Guarded>} />
+          <Route path="/app/account" element={<Guarded roles={STAFF}><Account /></Guarded>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
