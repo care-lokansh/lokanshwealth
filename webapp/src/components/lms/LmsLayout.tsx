@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, Users, Settings2, BarChart3,
-  LogOut, Menu, X, Landmark, Inbox,
+  LogOut, Menu, X, Landmark, Inbox, CircleUser,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession, signOut, type SessionUser } from "@/lib/auth-client";
@@ -15,8 +15,9 @@ const NAV: NavItem[] = [
   { to: "/app/files", label: "Cases", hi: "Files", icon: FolderKanban, roles: ["SUPER_ADMIN", "WORKER"] },
   { to: "/app/pool", label: "New Leads", hi: "Naye Aavedan", icon: Inbox, roles: ["WORKER"] },
   { to: "/app/analytics", label: "Analytics", icon: BarChart3, roles: ["SUPER_ADMIN"] },
-  { to: "/app/workers", label: "Workers", hi: "Karmchari", icon: Users, roles: ["SUPER_ADMIN"] },
+  { to: "/app/workers", label: "Staff", hi: "Karmchari", icon: Users, roles: ["SUPER_ADMIN"] },
   { to: "/app/products", label: "Loan Products", icon: Settings2, roles: ["SUPER_ADMIN"] },
+  { to: "/app/account", label: "My account", icon: CircleUser, roles: ["SUPER_ADMIN", "WORKER"] },
 ];
 
 function initials(name: string) {
@@ -81,10 +82,10 @@ export function LmsLayout({ children }: { children: React.ReactNode }) {
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-bold text-sidebar-accent-foreground">
             {user ? initials(user.name) : "--"}
           </div>
-          <div className="min-w-0 flex-1 leading-tight">
+          <Link to="/app/account" onClick={() => setOpen(false)} className="min-w-0 flex-1 leading-tight hover:opacity-80">
             <div className="truncate text-sm font-semibold">{user?.name}</div>
             <div className="text-[11px] text-sidebar-foreground/55">{user ? ROLE_LABEL[user.role] : ""}</div>
-          </div>
+          </Link>
           <button onClick={handleSignOut} title="Sign out" className="rounded-md p-1.5 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
             <LogOut className="h-4 w-4" />
           </button>
