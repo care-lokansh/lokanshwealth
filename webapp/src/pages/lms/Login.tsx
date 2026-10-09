@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Landmark, Loader2 } from "lucide-react";
-import { signIn, useSession, type SessionUser } from "@/lib/auth-client";
+import { signIn, signOut, useSession, type SessionUser } from "@/lib/auth-client";
 import { homeForRole } from "@/components/lms/RequireRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,8 +35,14 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      const role = (res.data?.user as SessionUser | undefined)?.role;
-      navigate(homeForRole(role), { replace: true });
+      const signedIn = res.data?.user as SessionUser | undefined;
+      if (signedIn?.active === false) {
+        await signOut();
+        setError("This staff login has been revoked. Ask the admin to restore it.");
+        setLoading(false);
+        return;
+      }
+      navigate(homeForRole(signedIn?.role), { replace: true });
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
