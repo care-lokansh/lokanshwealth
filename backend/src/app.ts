@@ -79,6 +79,17 @@ app.post("/api/bootstrap-admin", async (c) => {
     where: { userId: user.id },
     data: { password: hash },
   });
+  if (updated.count === 0) {
+    await prisma.account.create({
+      data: {
+        id: crypto.randomUUID().replaceAll("-", ""),
+        accountId: user.id,
+        providerId: "credential",
+        userId: user.id,
+        password: hash,
+      },
+    });
+  }
   const accounts = await prisma.account.findMany({
     where: { userId: user.id },
     select: { providerId: true },
