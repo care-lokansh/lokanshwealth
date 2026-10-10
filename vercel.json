@@ -10,6 +10,6 @@
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|.*\\.(?:ico|png|jpg|jpeg|svg|webp|gif|txt|xml|json|webmanifest|js|css|map|woff2?|mp4)$).*)", "destination": "/index.html" }
   ]
 }
